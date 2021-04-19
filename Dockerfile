@@ -68,7 +68,7 @@ RUN apk upgrade \
     && adduser -h /tmp -s /sbin/nologin -S -D -H shadowsocks \
     && adduser -h /tmp -s /sbin/nologin -S -D -H kcptun \
     && adduser -h /tmp -s /sbin/nologin -S -D -H polipo \
-    && adduser -h /tmp -s /sbin/nologin -S -D -H squid \
+    # && adduser -h /tmp -s /sbin/nologin -S -D -H squid \
     && echo "0       5       1       *       *       squid /usr/sbin/squid -k rotate -f /etc/squid/squid.conf" >> /etc/crontabs/root \
     && apk del .build-deps \
     && apk add --no-cache \
