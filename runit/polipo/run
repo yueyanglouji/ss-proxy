@@ -1,0 +1,19 @@
+#!/bin/bash
+
+exec 2>&1
+
+if [ -z "${SS_MODULE}" ]; then
+    SS_MODULE="ss-server"
+fi
+
+if [ "${SS_MODULE}"="ss-local" ]; then
+    echo "starting polipo..."
+	if [ -n "${POLIPO_CONFIG}" ]; then
+	    exec chpst -u polipo polipo ${POLIPO_CONFIG}
+	else
+	    exec chpst -u polipo polipo -c /etc/polipo.conf
+	fi
+else
+    echo "Error: SS_CONFIG is empty, exit!"
+    exit 1
+fi
