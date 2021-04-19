@@ -32,8 +32,8 @@ RUN apk upgrade \
         pcre-dev \
         tar \
         git \
-		texinfo \
-	&& git config --global http.proxy 10.48.211.15:1087 \
+        texinfo \
+    # && git config --global http.proxy 10.48.211.15:1087 \
     && git clone ${SS_DOWNLOAD_URL} \
     && (cd shadowsocks-libev \
     && git checkout tags/${SS_LIBEV_VERSION} -b ${SS_LIBEV_VERSION} \
@@ -47,12 +47,12 @@ RUN apk upgrade \
     && ./autogen.sh \
     && ./configure --disable-documentation \
     && make install) \
-	&& git clone ${POLIPO_DOWNLOAD_URL} \
-	&& (cd polipo \
-	&& make all \
-	&& make install) \
-	&& export http_proxy=http://10.48.211.15:1087 \
-	&& export https_proxy=http://10.48.211.15:1087 \
+    && git clone ${POLIPO_DOWNLOAD_URL} \
+    && (cd polipo \
+    && make all \
+    && make install) \
+    # && export http_proxy=http://10.48.211.15:1087 \
+    # && export https_proxy=http://10.48.211.15:1087 \
     && curl -o v2ray_plugin.tar.gz -sSL ${PLUGIN_V2RAY_DOWNLOAD_URL} \
     && tar -zxf v2ray_plugin.tar.gz \
     && mv v2ray-plugin_linux_amd64 /usr/bin/v2ray-plugin \
@@ -67,9 +67,9 @@ RUN apk upgrade \
     && echo ${TZ} > /etc/timezone \
     && adduser -h /tmp -s /sbin/nologin -S -D -H shadowsocks \
     && adduser -h /tmp -s /sbin/nologin -S -D -H kcptun \
-	&& adduser -h /tmp -s /sbin/nologin -S -D -H polipo \
-	&& adduser -h /tmp -s /sbin/nologin -S -D -H squid \
-	&& echo "0       5       1       *       *       squid /usr/sbin/squid -k rotate -f /etc/squid/squid.conf" >> /etc/crontabs/root \
+    && adduser -h /tmp -s /sbin/nologin -S -D -H polipo \
+    && adduser -h /tmp -s /sbin/nologin -S -D -H squid \
+    && echo "0       5       1       *       *       squid /usr/sbin/squid -k rotate -f /etc/squid/squid.conf" >> /etc/crontabs/root \
     && apk del .build-deps \
     && apk add --no-cache \
       $(scanelf --needed --nobanner /usr/bin/ss-* /usr/local/bin/obfs-* \
