@@ -6,7 +6,7 @@ if [ -z "${SS_MODULE}" ]; then
     SS_MODULE="ss-server"
 fi
 
-if [ "${SS_MODULE}"="ss-local" ]; then
+if [ "${SS_MODULE}" == "ss-local" ]; then
     echo "starting polipo..."
 	if [ -n "${POLIPO_CONFIG}" ]; then
 	    exec chpst -u polipo polipo ${POLIPO_CONFIG}
