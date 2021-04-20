@@ -79,6 +79,7 @@ RUN apk upgrade \
         kcptun-linux-amd64-${KCP_VERSION}.tar.gz \
         shadowsocks-libev \
         simple-obfs \
+		polipo \
         v2ray_plugin.tar.gz \
         /etc/service \
         /var/cache/apk/*
