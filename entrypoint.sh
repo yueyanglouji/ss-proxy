@@ -6,7 +6,7 @@ KCP_CONFIG=${KCP_CONFIG:-""}
 KCP_MODULE=${KCP_MODULE:-"kcpserver"}
 KCP_FLAG=${KCP_FLAG:-"false"}
 
-while getopts "s:m:k:e:x" OPT; do
+while getopts "s:m:k:e:x:u" OPT; do
     case $OPT in
         s)
             SS_CONFIG=$OPTARG;;
@@ -18,7 +18,7 @@ while getopts "s:m:k:e:x" OPT; do
             KCP_MODULE=$OPTARG;;
         x)
             KCP_FLAG="true";;
-		p)
+		u)
 		    POLIPO_CONFIG=$OPTARG;;
     esac
 done
