@@ -58,7 +58,7 @@ fi
 if [ "${SQUID_FLAG}" == "true" ]; then
     if [ "${SS_MODULE}" == "ss-local" ]; then
         echo "starting squid..."
-        chpst -u squid squid
+        chpst -u root squid
 		echo "squid started!"
     else
         echo "INFO: SS_MODULE is ${SS_MODULE}, not run squid!"
