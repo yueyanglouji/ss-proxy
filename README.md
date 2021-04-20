@@ -1,60 +1,77 @@
+在 mritd/shadowsocks 的基础上增加了polipo 和 squid 支持
+
+- polipo 将ss的socks5代理转为http代理
+- squid 本地http代理
+
+
+
+**本镜像升级较慢**
+
+
+
 ## shadowsocks
 
-![](https://img.shields.io/docker/stars/mritd/shadowsocks.svg) ![](https://img.shields.io/docker/pulls/mritd/shadowsocks.svg) ![](https://img.shields.io/microbadger/image-size/mritd/shadowsocks.svg) ![](https://img.shields.io/microbadger/layers/mritd/shadowsocks.svg)
+![](https://img.shields.io/docker/stars/yueyanglouji/ss-proxy.svg) ![](https://img.shields.io/docker/pulls/yueyanglouji/ss-proxy.svg) ![](https://img.shields.io/microbadger/image-size/yueyanglouji/ss-proxy.svg) ![](https://img.shields.io/microbadger/layers/yueyanglouji/ss-proxy.svg)
 
 - **shadowsocks-libev 版本: 3.3.5**
 - **kcptun 版本: 20201126**
 
-**注意: 由于 Docker Hub 自动构建功能最近出现的 Bug 比较多，构建队列缓慢；部分镜像(包含本镜像)可能会在采用本地 Build 然后直接 push 到远程仓库的方式构建；如有安全疑虑，可自行使用本 Dockerfile 构建**
+**Docker image 为自动构建**
 
 ### 打开姿势
 
 ``` sh
-docker run -dt --name ss -p 6443:6443 mritd/shadowsocks -s "-s 0.0.0.0 -p 6443 -m chacha20-ietf-poly1305 -k test123"
+docker run -dt --name ss -p 6443:6443 yueyanglouji/ss-proxy -s "-s 0.0.0.0 -p 6443 -m chacha20-ietf-poly1305 -k test123"
 ```
 
 ### 支持选项
 
 - `-m` : 指定 shadowsocks 命令，默认为 `ss-server`
 - `-s` : shadowsocks-libev 参数字符串
-- `-x` : 开启 kcptun 支持
+- `-x` : 开启 kcptun 支持， 默认 false
 - `-e` : 指定 kcptun 命令，默认为 `kcpserver` 
 - `-k` : kcptun 参数字符串
+- `-p`：polipo的参数字符串，仅`ss-local`模式下有效
+- `-z`：开启 squid 支持，仅`ss-local`模式下有效
 
 ### 选项描述
 
 - `-m` : 参数后指定一个 shadowsocks 命令，如 ss-local，不写默认为 ss-server；该参数用于 shadowsocks 在客户端和服务端工作模式间切换，可选项如下: `ss-local`、`ss-manager`、`ss-nat`、`ss-redir`、`ss-server`、`ss-tunnel`
 - `-s` : 参数后指定一个 shadowsocks-libev 的参数字符串，所有参数将被拼接到 `ss-server` 后
-- `-x` : 指定该参数后才会开启 kcptun 支持，否则将默认禁用 kcptun
+- `-x` : 指定该参数为`true`后才会开启 kcptun 支持，否则将默认禁用 kcptun
 - `-e` : 参数后指定一个 kcptun 命令，如 kcpclient，不写默认为 kcpserver；该参数用于 kcptun 在客户端和服务端工作模式间切换，可选项如下: `kcpserver`、`kcpclient`
 - `-k` : 参数后指定一个 kcptun 的参数字符串，所有参数将被拼接到 `kcptun` 后
+- `-p`：该参数为polipo的参数，仅`ss-local`模式下有效
+- `-z`：指定该参数后启用squid，端口 `3128`，启用squid后同一container中会存在2个http代理，一个ss代理，一个本地网络代理，仅`ss-local`模式下有效
 
 ### 命令示例
 
 **Server 端**
 
 ``` sh
-docker run -dt --name ssserver -p 6443:6443 -p 6500:6500/udp mritd/shadowsocks -m "ss-server" -s "-s 0.0.0.0 -p 6443 -m chacha20-ietf-poly1305 -k test123" -x -e "kcpserver" -k "-t 127.0.0.1:6443 -l :6500 -mode fast2"
+docker run -dt --name ssserver -p 6443:6443 -p 6500:6500/udp yueyanglouji/ss-proxy -m "ss-server" -s "-s 0.0.0.0 -p 6443 -m chacha20-ietf-poly1305 -k test123" -x true -e "kcpserver" -k "-t 127.0.0.1:6443 -l :6500 --key test123 -mode fast2"
 ```
 
 **以上命令相当于执行了**
 
 ``` sh
 ss-server -s 0.0.0.0 -p 6443 -m chacha20-ietf-poly1305 -k test123
-kcpserver -t 127.0.0.1:6443 -l :6500 -mode fast2
+kcpserver -t 127.0.0.1:6443 -l :6500 --key test123 -mode fast2
 ```
 
 **Client 端**
 
 ``` sh
-docker run -dt --name ssclient -p 1080:1080 mritd/shadowsocks -m "ss-local" -s "-s 127.0.0.1 -p 6500 -b 0.0.0.0 -l 1080 -m chacha20-ietf-poly1305 -k test123" -x -e "kcpclient" -k "-r SSSERVER_IP:6500 -l :6500 -mode fast2"
+docker run -dt --name ssclient -p 2514:2514 -p 3128:3128 yueyanglouji/ss-proxy -m "ss-local" -s "-s 127.0.0.1 -p 6500 -b 0.0.0.0 -l 1080 -m chacha20-ietf-poly1305 -k test123" -x true -e "kcpclient" -k "-r SS_SERVER_IP_WRITE_HERE:6500 -l :6500 --key test123 -mode fast2" -p "-c /etc/polipo.conf -- socksParentProxy=localhost:1080 proxyPort=2514" -z true
 ```
 
 **以上命令相当于执行了** 
 
 ``` sh
 ss-local -s 127.0.0.1 -p 6500 -b 0.0.0.0 -l 1080 -m chacha20-ietf-poly1305 -k test123
-kcpclient -r SSSERVER_IP:6500 -l :6500 -mode fast2
+kcpclient -r SS_SERVER_IP_WRITE_HERE:6500 -l :6500 --key test123 -mode fast2
+polipo -c /etc/polipo.conf -- socksParentProxy=localhost:1080 proxyPort=2514
+squid
 ```
 
 **关于 shadowsocks-libev 和 kcptun 都支持哪些参数请自行查阅官方文档，本镜像只做一个拼接**
@@ -69,15 +86,17 @@ kcpclient -r SSSERVER_IP:6500 -l :6500 -mode fast2
 |-------|---|---|
 |SS_MODULE|shadowsocks 启动命令| `ss-local`、`ss-manager`、`ss-nat`、`ss-redir`、`ss-server`、`ss-tunnel`|
 |SS_CONFIG|shadowsocks-libev 参数字符串|所有字符串内内容应当为 shadowsocks-libev 支持的选项参数|
-|KCP_FLAG|是否开启 kcptun 支持|可选参数为 true 和 false，默认为 fasle 禁用 kcptun|
+|KCP_FLAG|是否开启 kcptun 支持|`true` 、` false`，默认为 fasle 禁用 kcptun|
 |KCP_MODULE|kcptun 启动命令| `kcpserver`、`kcpclient`|
 |KCP_CONFIG|kcptun 参数字符串|所有字符串内内容应当为 kcptun 支持的选项参数|
+|POLIPO_CONFIG|polipo 参数字符串|所有字符串内内容应当为 polipo 支持的选项参数，仅`ss-local`模式下有效|
+|SQUID_FLAG|是否开启 squid支持|`true`、` false`，默认为 fasle 禁用 squid，仅`ss-local`模式下有效|
 
 
 使用时可指定环境变量，如下
 
 ``` sh
-docker run -dt --name ss -p 6443:6443 -p 6500:6500/udp -e SS_CONFIG="-s 0.0.0.0 -p 6443 -m chacha20-ietf-poly1305 -k test123" -e KCP_MODULE="kcpserver" -e KCP_CONFIG="-t 127.0.0.1:6443 -l :6500 -mode fast2" -e KCP_FLAG="true" mritd/shadowsocks
+docker run -dt --name ss -p 6443:6443 -p 6500:6500/udp -e SS_CONFIG="-s 0.0.0.0 -p 6443 -m chacha20-ietf-poly1305 -k test123" -e KCP_MODULE="kcpserver" -e KCP_CONFIG="-t 127.0.0.1:6443 -l :6500 -mode fast2" -e KCP_FLAG="true" yueyanglouji/ss-proxy
 ```
 
 ### 容器平台说明
