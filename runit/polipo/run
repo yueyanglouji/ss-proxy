@@ -13,7 +13,8 @@ if [ "${SS_MODULE}" == "ss-local" ]; then
 	else
 	    exec chpst -u polipo polipo -c /etc/polipo.conf
 	fi
+	exit 0
 else
-    echo "Error: SS_CONFIG is empty, exit!"
-    exit 1
+    echo "INFO: SS_MODULE is ${SS_MODULE}, exit!"
+    exit 0
 fi

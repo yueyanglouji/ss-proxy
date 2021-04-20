@@ -5,6 +5,7 @@ SS_MODULE=${SS_MODULE:-"ss-server"}
 KCP_CONFIG=${KCP_CONFIG:-""}
 KCP_MODULE=${KCP_MODULE:-"kcpserver"}
 KCP_FLAG=${KCP_FLAG:-"false"}
+POLIPO_CONFIG=${POLIPO_CONFIG:-""}
 SQUID_FLAG=${SQUID_FLAG:-"false"}
 
 while getopts "s:m:k:e:x:p:z:" OPT; do
