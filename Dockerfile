@@ -33,7 +33,7 @@ RUN apk upgrade \
         tar \
         git \
         texinfo \
-        perl5 \
+        perl \
     # && git config --global http.proxy 10.48.211.15:1087 \
     && git clone ${SS_DOWNLOAD_URL} \
     && (cd shadowsocks-libev \

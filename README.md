@@ -1,11 +1,29 @@
-在 mritd/shadowsocks 的基础上增加了polipo 和 squid 支持
+~~在 mritd/shadowsocks 的基础上增加了polipo 和 squid 支持~~
 
-- polipo 将ss的socks5代理转为http代理
-- squid 本地http代理
+- ~~polipo 将ss的socks5代理转为http代理~~
+- ~~squid 本地http代理~~
+
+在 mritd/shadowsocks 的基础上增加了privoxy支持
+
+- provoxy 将ss的socks5代理转为http代理，1.支持PAC模式，2.支持全局模式，3.支持仅本地不走ss代理模式
+
+PAC模式基于：https://github.com/yueyanglouji/gfwlist2privoxy
+
+
+
+TODO:
+
+服务端增加Tor支持，参考 
+
+https://github.com/yueyanglouji/toriptables3 
+
+https://github.com/yueyanglouji/shadowsocks-libev_installer
 
 
 
 **本镜像升级较慢**
+
+
 
 
 
@@ -31,8 +49,10 @@ docker run -dt --name ss -p 6443:6443 yueyanglouji/ss-proxy -s "-s 0.0.0.0 -p 64
 - `-x` : 开启 kcptun 支持， 默认 false
 - `-e` : 指定 kcptun 命令，默认为 `kcpserver` 
 - `-k` : kcptun 参数字符串
-- `-p`：polipo的参数字符串，仅`ss-local`模式下有效
-- `-z`：开启 squid 支持，仅`ss-local`模式下有效
+- `-p`：开启privoxy的PAC模式，开放端口8118，仅`ss-local`模式下有效
+- `-r`：开启privoxy的全局模式，开放端口8117，仅`ss-local`模式下有效
+- `-u`：开启privoxy的仅本地模式，开放端口8116，仅`ss-local`模式下有效
+- `-v`：该参数为privoxy的参数，设置ss的proxy地址，仅`ss-local`模式下有效
 
 ### 选项描述
 
@@ -41,8 +61,10 @@ docker run -dt --name ss -p 6443:6443 yueyanglouji/ss-proxy -s "-s 0.0.0.0 -p 64
 - `-x` : 指定该参数为`true`后才会开启 kcptun 支持，否则将默认禁用 kcptun
 - `-e` : 参数后指定一个 kcptun 命令，如 kcpclient，不写默认为 kcpserver；该参数用于 kcptun 在客户端和服务端工作模式间切换，可选项如下: `kcpserver`、`kcpclient`
 - `-k` : 参数后指定一个 kcptun 的参数字符串，所有参数将被拼接到 `kcptun` 后
-- `-p`：该参数为polipo的参数，仅`ss-local`模式下有效
-- `-z`：指定该参数后启用squid，端口 `3128`，启用squid后同一container中会存在2个http代理，一个ss代理，一个本地网络代理，仅`ss-local`模式下有效
+- `-p`：指定该参数为`true`后才会开启 pac模式 支持，仅`ss-local`模式下有效
+- `-r`：指定该参数为`true`后才会开启 全局模式 支持，仅`ss-local`模式下有效
+- `-u`：指定该参数为`true`后才会开启 仅本地模式 支持，仅`ss-local`模式下有效
+- `-v`： 该参数为privoxy的参数，设置ss的proxy地址，仅`ss-local`模式下有效
 
 ### 命令示例
 
@@ -62,7 +84,7 @@ kcpserver -t 127.0.0.1:6443 -l :6500 --key test123 -mode fast2
 **Client 端**
 
 ``` sh
-docker run -dt --name ssclient -p 2514:2514 -p 3128:3128 yueyanglouji/ss-proxy -m "ss-local" -s "-s 127.0.0.1 -p 6500 -b 0.0.0.0 -l 1080 -m chacha20-ietf-poly1305 -k test123" -x true -e "kcpclient" -k "-r SS_SERVER_IP_WRITE_HERE:6500 -l :6500 --key test123 -mode fast2" -p "-c /etc/polipo.conf -- socksParentProxy=localhost:1080 proxyPort=2514" -z true
+docker run -dt --name ssclient -p 2514:2514 -p 3128:3128 yueyanglouji/ss-proxy -m "ss-local" -s "-s 127.0.0.1 -p 6500 -b 0.0.0.0 -l 1080 -m chacha20-ietf-poly1305 -k test123" -x true -e "kcpclient" -k "-r SS_SERVER_IP_WRITE_HERE:6500 -l :6500 --key test123 -mode fast2" -p true -r true -u true -v "127.0.0.1:1080"
 ```
 
 **以上命令相当于执行了** 
@@ -70,8 +92,9 @@ docker run -dt --name ssclient -p 2514:2514 -p 3128:3128 yueyanglouji/ss-proxy -
 ``` sh
 ss-local -s 127.0.0.1 -p 6500 -b 0.0.0.0 -l 1080 -m chacha20-ietf-poly1305 -k test123
 kcpclient -r SS_SERVER_IP_WRITE_HERE:6500 -l :6500 --key test123 -mode fast2
-polipo -c /etc/polipo.conf -- socksParentProxy=localhost:1080 proxyPort=2514
-squid
+privoxy <PAC>
+privoxy <全局>
+privoxy <本地>
 ```
 
 **关于 shadowsocks-libev 和 kcptun 都支持哪些参数请自行查阅官方文档，本镜像只做一个拼接**
@@ -89,8 +112,10 @@ squid
 |KCP_FLAG|是否开启 kcptun 支持|`true` 、` false`，默认为 fasle 禁用 kcptun|
 |KCP_MODULE|kcptun 启动命令| `kcpserver`、`kcpclient`|
 |KCP_CONFIG|kcptun 参数字符串|所有字符串内内容应当为 kcptun 支持的选项参数|
-|POLIPO_CONFIG|polipo 参数字符串|所有字符串内内容应当为 polipo 支持的选项参数，仅`ss-local`模式下有效|
-|SQUID_FLAG|是否开启 squid支持|`true`、` false`，默认为 fasle 禁用 squid，仅`ss-local`模式下有效|
+|P_PAC_FLAG| 是否开启PAC模式支持          |`true`、` false`，默认为 fasle 禁用PAC模式，仅`ss-local`模式下有效|
+|P_SS_FLAG|是否开启全局模式支持|`true`、` false`，默认为 fasle 禁用全局模式，仅`ss-local`模式下有效|
+|P_LOCAL_FLAG|是否开启仅本地支持|`true`、` false`，默认为 fasle 禁用仅本地模式，仅`ss-local`模式下有效|
+|P_SOCKS_PROXY|SS proxy地址|默认`127.0.0.1:1081`|
 
 
 使用时可指定环境变量，如下
