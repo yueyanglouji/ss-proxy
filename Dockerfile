@@ -54,9 +54,9 @@ RUN apk upgrade \
     # && make install) \
     # && export http_proxy=http://10.48.211.15:1087 \
     # && export https_proxy=http://10.48.211.15:1087 \
-	&& sed -i 's/logfile privoxy.log/# logfile privoxy.log/g' config \
-	&& cp -r /etc/privoxy/config /etc/privoxy/config-local-only \
-	&& cp -r /etc/privoxy/config /etc/privoxy/config-ss-only \
+	&& sed -i 's/logfile privoxy.log/# logfile privoxy.log/g' /etc/privoxy/config \
+	&& cp -r /etc/privoxy /etc/config-local-only \
+	&& cp -r /etc/privoxy /etc/config-ss-only \
 	&& sed -i 's/127.0.0.1:8118/0.0.0.0:8118/g' /etc/privoxy/config \
 	&& sed -i 's/127.0.0.1:8118/0.0.0.0:8117/g' /etc/config-ss-only/config \
 	&& sed -i 's/127.0.0.1:8118/0.0.0.0:8116/g' /etc/config-local-only/config \
