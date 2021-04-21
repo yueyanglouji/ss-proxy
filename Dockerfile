@@ -12,11 +12,11 @@ ENV SS_DOWNLOAD_URL https://github.com/shadowsocks/shadowsocks-libev.git
 ENV KCP_DOWNLOAD_URL https://github.com/xtaci/kcptun/releases/download/v${KCP_VERSION}/kcptun-linux-amd64-${KCP_VERSION}.tar.gz
 ENV PLUGIN_OBFS_DOWNLOAD_URL https://github.com/shadowsocks/simple-obfs.git
 ENV PLUGIN_V2RAY_DOWNLOAD_URL https://github.com/shadowsocks/v2ray-plugin/releases/download/${V2RAY_PLUGIN_VERSION}/v2ray-plugin-linux-amd64-${V2RAY_PLUGIN_VERSION}.tar.gz
-#ENV LINUX_HEADERS_DOWNLOAD_URL=http://dl-cdn.alpinelinux.org/alpine/v3.7/main/x86_64/linux-headers-4.4.6-r2.apk
-ENV POLIPO_DOWNLOAD_URL https://github.com/yueyanglouji/polipo
+# ENV LINUX_HEADERS_DOWNLOAD_URL=http://dl-cdn.alpinelinux.org/alpine/v3.7/main/x86_64/linux-headers-4.4.6-r2.apk
+# ENV POLIPO_DOWNLOAD_URL https://github.com/yueyanglouji/polipo
 
 RUN apk upgrade \
-    && apk add bash tzdata rng-tools runit squid \
+    && apk add bash tzdata rng-tools runit privoxy tor \
     && apk add --virtual .build-deps \
         autoconf \
         automake \
@@ -33,6 +33,7 @@ RUN apk upgrade \
         tar \
         git \
         texinfo \
+        per5 \
     # && git config --global http.proxy 10.48.211.15:1087 \
     && git clone ${SS_DOWNLOAD_URL} \
     && (cd shadowsocks-libev \
@@ -47,12 +48,23 @@ RUN apk upgrade \
     && ./autogen.sh \
     && ./configure --disable-documentation \
     && make install) \
-    && git clone ${POLIPO_DOWNLOAD_URL} \
-    && (cd polipo \
-    && make all \
-    && make install) \
+    # && git clone ${POLIPO_DOWNLOAD_URL} \
+    # && (cd polipo \
+    # && make all \
+    # && make install) \
     # && export http_proxy=http://10.48.211.15:1087 \
     # && export https_proxy=http://10.48.211.15:1087 \
+	&& sed -i 's/logfile privoxy.log/# logfile privoxy.log/g' config \
+	&& cp -r /etc/privoxy/config /etc/privoxy/config-local-only \
+	&& cp -r /etc/privoxy/config /etc/privoxy/config-ss-only \
+	&& sed -i 's/127.0.0.1:8118/0.0.0.0:8118/g' /etc/privoxy/config \
+	&& sed -i 's/127.0.0.1:8118/0.0.0.0:8117/g' /etc/config-ss-only/config \
+	&& sed -i 's/127.0.0.1:8118/0.0.0.0:8116/g' /etc/config-local-only/config \
+	&& curl -4sSkLO https://raw.github.com/zfl9/gfwlist2privoxy/master/gfwlist2privoxy \
+	&& bash gfwlist2privoxy 127.0.0.1:1080 \
+	&& mv -f gfwlist.action /etc/privoxy/ \
+	&& echo 'actionsfile gfwlist.action' >> /etc/privoxy/config \
+	&& echo 'forward-socks5t / 127.0.0.1:1080 .' >> /etc/privoxy/config-ss-only \
     && curl -o v2ray_plugin.tar.gz -sSL ${PLUGIN_V2RAY_DOWNLOAD_URL} \
     && tar -zxf v2ray_plugin.tar.gz \
     && mv v2ray-plugin_linux_amd64 /usr/bin/v2ray-plugin \
@@ -67,9 +79,7 @@ RUN apk upgrade \
     && echo ${TZ} > /etc/timezone \
     && adduser -h /tmp -s /sbin/nologin -S -D -H shadowsocks \
     && adduser -h /tmp -s /sbin/nologin -S -D -H kcptun \
-    && adduser -h /tmp -s /sbin/nologin -S -D -H polipo \
-    # && adduser -h /tmp -s /sbin/nologin -S -D -H squid \
-    && echo "0       5       1       *       *       squid /usr/sbin/squid -k rotate -f /etc/squid/squid.conf" >> /etc/crontabs/root \
+    # && adduser -h /tmp -s /sbin/nologin -S -D -H polipo \
     && apk del .build-deps \
     && apk add --no-cache \
       $(scanelf --needed --nobanner /usr/bin/ss-* /usr/local/bin/obfs-* \
@@ -79,7 +89,7 @@ RUN apk upgrade \
         kcptun-linux-amd64-${KCP_VERSION}.tar.gz \
         shadowsocks-libev \
         simple-obfs \
-		polipo \
+		# polipo \
         v2ray_plugin.tar.gz \
         /etc/service \
         /var/cache/apk/*
@@ -88,6 +98,5 @@ SHELL ["/bin/bash"]
 
 COPY runit /etc/service
 COPY entrypoint.sh /entrypoint.sh
-COPY polipo.conf /etc
 
 ENTRYPOINT ["/entrypoint.sh"]

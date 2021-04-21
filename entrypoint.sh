@@ -5,10 +5,12 @@ SS_MODULE=${SS_MODULE:-"ss-server"}
 KCP_CONFIG=${KCP_CONFIG:-""}
 KCP_MODULE=${KCP_MODULE:-"kcpserver"}
 KCP_FLAG=${KCP_FLAG:-"false"}
-POLIPO_CONFIG=${POLIPO_CONFIG:-""}
-SQUID_FLAG=${SQUID_FLAG:-"false"}
+P_PAC_FLAG=${P_PAC_FLAG:-""}
+P_SS_FLAG=${P_SS_FLAG:-""}
+P_LOCAL_FLAG=${P_LOCAL_FLAG:-""}
+P_SOCKS_PROXY=${P_SOCKS_PROXY:-""}
 
-while getopts "s:m:k:e:x:p:z:" OPT; do
+while getopts "s:m:k:e:x:p:q:r:t:u:v" OPT; do
     case $OPT in
         s)
             SS_CONFIG=$OPTARG;;
@@ -21,9 +23,13 @@ while getopts "s:m:k:e:x:p:z:" OPT; do
         x)
             KCP_FLAG=$OPTARG;;
         p)
-            POLIPO_CONFIG=$OPTARG;;
-        z)
-            SQUID_FLAG=$OPTARG;;
+            P_PAC_FLAG=$OPTARG;;
+        r)
+            P_SS_FLAG=$OPTARG;;
+        u)
+            P_LOCAL_FLAG=$OPTARG;;
+        v)
+            P_SOCKS_PROXY=$OPTARG;;
     esac
 done
 
@@ -32,37 +38,19 @@ export SS_MODULE=${SS_MODULE}
 export KCP_CONFIG=${KCP_CONFIG}
 export KCP_MODULE=${KCP_MODULE}
 export KCP_FLAG=${KCP_FLAG}
-export POLIPO_CONFIG=${POLIPO_CONFIG}
-export SQUID_FLAG=${SQUID_FLAG}
+export P_PAC_FLAG=${P_PAC_FLAG}
+export P_SS_FLAG=${P_SS_FLAG}
+export P_LOCAL_FLAG=${P_LOCAL_FLAG}
+export P_SOCKS_PROXY=${P_SOCKS_PROXY}
 
 echo ${SS_CONFIG} >> a.txt
 echo ${SS_MODULE} >> a.txt
 echo ${KCP_CONFIG} >> a.txt
 echo ${KCP_MODULE} >> a.txt
 echo ${KCP_FLAG} >> a.txt
-echo ${POLIPO_CONFIG} >> a.txt
-echo ${SQUID_FLAG} >> a.txt
-
-if [ "${SS_MODULE}" == "ss-local" ]; then
-    echo "starting polipo..."
-    if [ -n "${POLIPO_CONFIG}" ]; then
-        chpst -u polipo polipo ${POLIPO_CONFIG}
-    else
-        chpst -u polipo polipo -c /etc/polipo.conf
-    fi
-	echo "polipo started!"
-else
-    echo "INFO: SS_MODULE is ${SS_MODULE}, not run polipo!"
-fi
-
-if [ "${SQUID_FLAG}" == "true" ]; then
-    if [ "${SS_MODULE}" == "ss-local" ]; then
-        echo "starting squid..."
-        chpst -u root squid
-		echo "squid started!"
-    else
-        echo "INFO: SS_MODULE is ${SS_MODULE}, not run squid!"
-    fi
-fi
+echo ${P_PAC_FLAG} >> a.txt
+echo ${P_SS_FLAG} >> a.txt
+echo ${P_LOCAL_FLAG} >> a.txt
+echo ${P_SOCKS_PROXY} >> a.txt
 
 exec runsvdir -P /etc/service
