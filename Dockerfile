@@ -1,6 +1,7 @@
 FROM alpine:3.12
+# FROM alpine:edge
 
-LABEL maintainer="mritd <mritd@linux.com>"
+LABEL maintainer="yueyanglouji <343468684@qq.com>"
 
 ARG TZ='Asia/Shanghai'
 
