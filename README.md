@@ -84,7 +84,7 @@ kcpserver -t 127.0.0.1:6443 -l :6500 --key test123 -mode fast2
 **Client 端**
 
 ``` sh
-docker run -dt --name ssclient -p 2514:2514 -p 8118:8118 -p 8117:8117 -p 8116:8116 yueyanglouji/ss-proxy -m "ss-local" -s "-s 127.0.0.1 -p 6500 -b 0.0.0.0 -l 1080 -m chacha20-ietf-poly1305 -k test123" -x true -e "kcpclient" -k "-r SS_SERVER_IP_WRITE_HERE:6500 -l :6500 --key test123 -mode fast2" -p true -r true -u true -v "127.0.0.1:1080"
+docker run -dt --name ssclient -p 8118:8118 -p 8117:8117 -p 8116:8116 yueyanglouji/ss-proxy -m "ss-local" -s "-s 127.0.0.1 -p 6500 -b 0.0.0.0 -l 1080 -m chacha20-ietf-poly1305 -k test123" -x true -e "kcpclient" -k "-r SS_SERVER_IP_WRITE_HERE:6500 -l :6500 --key test123 -mode fast2" -p true -r true -u true -v "127.0.0.1:1080"
 ```
 
 **以上命令相当于执行了** 

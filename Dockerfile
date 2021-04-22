@@ -4,6 +4,8 @@ LABEL maintainer="mritd <mritd@linux.com>"
 
 ARG TZ='Asia/Shanghai'
 
+USER root
+
 ENV TZ ${TZ}
 ENV SS_LIBEV_VERSION v3.3.5
 ENV KCP_VERSION 20201126
