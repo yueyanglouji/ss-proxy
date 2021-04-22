@@ -56,8 +56,6 @@ RUN apk upgrade \
     # && make install) \
     # && export http_proxy=http://10.48.211.15:1087 \
     # && export https_proxy=http://10.48.211.15:1087 \
-	# && iptables -P INPUT ACCEPT \
-	# && iptables -P OUTPUT ACCEPT \
 	&& sed -i 's/logfile privoxy.log/# logfile privoxy.log/g' /etc/privoxy/config \
 	&& cp -r /etc/privoxy /etc/privoxy-local-only \
 	&& cp -r /etc/privoxy /etc/privoxy-ss-only \
@@ -68,6 +66,7 @@ RUN apk upgrade \
 	&& bash gfwlist2privoxy 127.0.0.1:1080 \
 	&& mv -f gfwlist.action /etc/privoxy/ \
 	&& echo 'actionsfile gfwlist.action' >> /etc/privoxy/config \
+	&& echo 'actionsfile user-rule/user-rule.action' >> /etc/privoxy/config \
 	&& echo 'forward-socks5t / 127.0.0.1:1080 .' >> /etc/privoxy-ss-only/config \
     && curl -o v2ray_plugin.tar.gz -sSL ${PLUGIN_V2RAY_DOWNLOAD_URL} \
     && tar -zxf v2ray_plugin.tar.gz \
@@ -102,5 +101,6 @@ SHELL ["/bin/bash"]
 
 COPY runit /etc/service
 COPY entrypoint.sh /entrypoint.sh
+COPY user-rule /etc/privoxy
 
 ENTRYPOINT ["/entrypoint.sh"]

@@ -7,6 +7,7 @@ if [ "${P_PAC_FLAG}" == "true" ]; then
         echo "starting privoxy pac..."
         if [ -n "${P_SOCKS_PROXY}" ]; then
             sed -i 's/127.0.0.1:1080/${P_SOCKS_PROXY}/g' /etc/privoxy/gfwlist.action
+			sed -i 's/127.0.0.1:1080/${P_SOCKS_PROXY}/g' /etc/privoxy/user-rule/user-rule.action
         fi
 	    exec privoxy --no-daemon /etc/privoxy/config
     else

@@ -1,0 +1,7 @@
+{+forward-override{forward-socks5 127.0.0.1:1080 .}}
+.github.com
+.docker.com
+.gravatar.com
+.mktoresp.com
+.google-analytics.com
+.segment.com
