@@ -7,7 +7,24 @@
 
 - provoxy 将ss的socks5代理转为http代理，1.支持PAC模式，2.支持全局模式，3.支持仅本地不走ss代理模式
 
-PAC模式基于：https://github.com/yueyanglouji/gfwlist2privoxy
+PAC模式
+
+- PAC模式基于：https://github.com/yueyanglouji/gfwlist2privoxy
+
+- 用户规则文件user-rule.action的挂载位置`/etc/privoxy/user-rule/user-rule.action`，使用-v参数`docker -v /apps/user-rule.action:/etc/privoxy/user-rule/user-rule.action`
+
+- user-rule.action文件内容
+
+  ```
+  # ss socks5 proxy address at first line
+  {+forward-override{forward-socks5 127.0.0.1:1080 .}}
+  .github.com
+  .docker.com
+  .gravatar.com
+  .mktoresp.com
+  .google-analytics.com
+  .segment.com
+  ```
 
 
 
@@ -18,6 +35,8 @@ TODO:
 https://github.com/yueyanglouji/toriptables3 
 
 https://github.com/yueyanglouji/shadowsocks-libev_installer
+
+https://hangarau.space/running-and-debugging-iptables-inside-a-docker-container/
 
 
 
