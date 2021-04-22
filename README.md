@@ -26,6 +26,20 @@ PAC模式
   .segment.com
   ```
 
+其他有用的参数
+
+- --log-opt 指定log大小
+
+- --restart重启策略
+
+- --dns dns设定
+
+- --dns-search 设定dns的搜索域，多个域要配多个--dns-search
+
+  ```
+  --log-opt "max-size=100m" --restart unless-stopped --dns=10.10.10.2 --dns-search=domain1.ykgw.net --dns-search=domain2.ykgw.net
+  ```
+
 
 
 TODO:
