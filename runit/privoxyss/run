@@ -8,7 +8,7 @@ if [ "${P_SS_FLAG}" == "true" ]; then
         if [ -n "${P_SOCKS_PROXY}" ]; then
             sed -i 's/127.0.0.1:1080/${P_SOCKS_PROXY}/g' /etc/config-ss-only/config
         fi
-	    exec privoxy /etc/config-ss-only/config
+	    privoxy /etc/config-ss-only/config
     else
         echo "INFO: SS_MODULE is ${SS_MODULE}, not run privoxy!"
 		exit 0

@@ -16,7 +16,7 @@ ENV PLUGIN_V2RAY_DOWNLOAD_URL https://github.com/shadowsocks/v2ray-plugin/releas
 # ENV POLIPO_DOWNLOAD_URL https://github.com/yueyanglouji/polipo
 
 RUN apk upgrade \
-    && apk add bash tzdata rng-tools runit privoxy tor \
+    && apk add bash tzdata rng-tools runit privoxy tor iptables\
     && apk add --virtual .build-deps \
         autoconf \
         automake \
@@ -54,17 +54,19 @@ RUN apk upgrade \
     # && make install) \
     # && export http_proxy=http://10.48.211.15:1087 \
     # && export https_proxy=http://10.48.211.15:1087 \
+	&& iptables -P INPUT ACCEPT \
+	&& iptables -P OUTPUT ACCEPT \
 	&& sed -i 's/logfile privoxy.log/# logfile privoxy.log/g' /etc/privoxy/config \
-	&& cp -r /etc/privoxy /etc/config-local-only \
-	&& cp -r /etc/privoxy /etc/config-ss-only \
+	&& cp -r /etc/privoxy /etc/privoxy-local-only \
+	&& cp -r /etc/privoxy /etc/privoxy-ss-only \
 	&& sed -i 's/127.0.0.1:8118/0.0.0.0:8118/g' /etc/privoxy/config \
-	&& sed -i 's/127.0.0.1:8118/0.0.0.0:8117/g' /etc/config-ss-only/config \
-	&& sed -i 's/127.0.0.1:8118/0.0.0.0:8116/g' /etc/config-local-only/config \
+	&& sed -i 's/127.0.0.1:8118/0.0.0.0:8117/g' /etc/privoxy-ss-only/config \
+	&& sed -i 's/127.0.0.1:8118/0.0.0.0:8116/g' /etc/privoxy-local-only/config \
 	&& curl -4sSkLO https://raw.github.com/zfl9/gfwlist2privoxy/master/gfwlist2privoxy \
 	&& bash gfwlist2privoxy 127.0.0.1:1080 \
 	&& mv -f gfwlist.action /etc/privoxy/ \
 	&& echo 'actionsfile gfwlist.action' >> /etc/privoxy/config \
-	&& echo 'forward-socks5t / 127.0.0.1:1080 .' >> /etc/privoxy/config-ss-only \
+	&& echo 'forward-socks5t / 127.0.0.1:1080 .' >> /etc/privoxy-ss-only/config \
     && curl -o v2ray_plugin.tar.gz -sSL ${PLUGIN_V2RAY_DOWNLOAD_URL} \
     && tar -zxf v2ray_plugin.tar.gz \
     && mv v2ray-plugin_linux_amd64 /usr/bin/v2ray-plugin \

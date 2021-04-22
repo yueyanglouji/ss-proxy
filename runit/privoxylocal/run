@@ -5,7 +5,7 @@ exec 2>&1
 if [ "${P_LOCAL_FLAG}" == "true" ]; then
     if [ "${SS_MODULE}" == "ss-local" ]; then
         echo "starting privoxy local..."
-	    exec privoxy /etc/config-local-only/config
+	    privoxy /etc/config-local-only/config
     else
         echo "INFO: SS_MODULE is ${SS_MODULE}, not run privoxy!"
 		exit 0
