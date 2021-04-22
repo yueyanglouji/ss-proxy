@@ -56,8 +56,8 @@ RUN apk upgrade \
     # && make install) \
     # && export http_proxy=http://10.48.211.15:1087 \
     # && export https_proxy=http://10.48.211.15:1087 \
-	&& iptables -P INPUT ACCEPT \
-	&& iptables -P OUTPUT ACCEPT \
+	# && iptables -P INPUT ACCEPT \
+	# && iptables -P OUTPUT ACCEPT \
 	&& sed -i 's/logfile privoxy.log/# logfile privoxy.log/g' /etc/privoxy/config \
 	&& cp -r /etc/privoxy /etc/privoxy-local-only \
 	&& cp -r /etc/privoxy /etc/privoxy-ss-only \
