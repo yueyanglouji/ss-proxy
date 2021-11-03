@@ -40,6 +40,17 @@ PAC模式
   --log-opt "max-size=100m" --restart unless-stopped --dns=10.10.10.2 --dns-search=domain1.ykgw.net --dns-search=domain2.ykgw.net
   ```
 
+端口访问控制
+- 启用firewalld --> systemctl start firewalld
+- 开机有效 -------> systemctl enable firewalld
+- 开放端口 -------> firewall-cmd --zone=public --add-port=53/udp --permanent
+- 开放端口给指定IP-> firewall-cmd --add-rich-rule='rule family="ipv4" source address="10.48.211.15/32" port port="8118"
+protocol="tcp" accept' --permanent
+- 删除端口 -------> firewall-cmd --zone=public --remove-port=53/udp --permanent
+- 删除指定IP端口--> firewall-cmd --remove-rich-rule='rule family="ipv4" source address="10.48.211.15/32" port port="8118"
+protocol="tcp" accept' --permanent
+- 规则生效 -------> firewall-cmd --reload
+- 查看规则 -------> firewall-cmd --list-all
 
 
 TODO:
