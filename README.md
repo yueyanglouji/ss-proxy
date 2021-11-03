@@ -51,6 +51,7 @@ protocol="tcp" accept' --permanent
 protocol="tcp" accept' --permanent
 - 规则生效 -------> firewall-cmd --reload
 - 查看规则 -------> firewall-cmd --list-all
+- 允许IP伪装启用包转发 -----> firewall-cmd --add-masquerade --permanent
 
 
 TODO:
