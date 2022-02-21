@@ -36,6 +36,8 @@ PAC模式
 
 - --dns-search 设定dns的搜索域，多个域要配多个--dns-search
 
+- --privileged=true 设定容器内部可用iptables，当kcptun使用tcp模式时必须设定（推荐）。
+
   ```
   --log-opt "max-size=100m" --restart unless-stopped --dns=10.10.10.2 --dns-search=domain1.ykgw.net --dns-search=domain2.ykgw.net
   ```
@@ -69,7 +71,7 @@ https://hangarau.space/running-and-debugging-iptables-inside-a-docker-container/
 
 **Docker image 为自动构建**
 
-### 打开姿势
+### 打开姿势 单SS模式
 
 ``` sh
 docker run -dt --name ss -p 6443:6443 yueyanglouji/ss-proxy -s "-s 0.0.0.0 -p 6443 -m chacha20-ietf-poly1305 -k test123"
@@ -99,32 +101,44 @@ docker run -dt --name ss -p 6443:6443 yueyanglouji/ss-proxy -s "-s 0.0.0.0 -p 64
 - `-u`：指定该参数为`true`后才会开启 仅本地模式 支持，仅`ss-local`模式下有效
 - `-v`： 该参数为privoxy的参数，设置ss的proxy地址，仅`ss-local`模式下有效
 
-### 命令示例
+### 命令示例 SS+KCPTUN模式
 
-**Server 端**
+**~~Server 端 使用kcptun udp模式（不推荐，udp封锁）~~**
 
 ``` sh
 docker run -dt --name ssserver -p 6443:6443 -p 6500:6500/udp yueyanglouji/ss-proxy -m "ss-server" -s "-s 0.0.0.0 -p 6443 -m chacha20-ietf-poly1305 -k test123" -x true -e "kcpserver" -k "-t 127.0.0.1:6443 -l :6500 --key test123 -mode fast2"
+```
+
+**Server端 使用kcptun tcp模式（推荐）**
+
+```sh
+docker run -dt --name ssserver --privileged=true -p 6443:6443 -p 6500:6500/udp yueyanglouji/ss-proxy -m "ss-server" -s "-s 0.0.0.0 -p 6443 -m chacha20-ietf-poly1305 -k test123" -x true -e "kcpserver" -k "-t 127.0.0.1:6443 -l :6500 --key test123 -mode fast2 --tcp"
 ```
 
 **以上命令相当于执行了**
 
 ``` sh
 ss-server -s 0.0.0.0 -p 6443 -m chacha20-ietf-poly1305 -k test123
-kcpserver -t 127.0.0.1:6443 -l :6500 --key test123 -mode fast2
+kcpserver -t 127.0.0.1:6443 -l :6500 --key test123 -mode fast2 --tcp
 ```
 
-**Client 端**
+**~~Client 端 使用kcptun udp模式（不推荐，udp封锁）~~**
 
 ``` sh
 docker run -dt --name ssclient -p 8118:8118 -p 8117:8117 -p 8116:8116 yueyanglouji/ss-proxy -m "ss-local" -s "-s 127.0.0.1 -p 6500 -b 0.0.0.0 -l 1080 -m chacha20-ietf-poly1305 -k test123" -x true -e "kcpclient" -k "-r SS_SERVER_IP_WRITE_HERE:6500 -l :6500 --key test123 -mode fast2" -p true -r true -u true -v "127.0.0.1:1080"
+```
+
+**Client 端 使用kcptun tcp模式（推荐）**
+
+```sh
+docker run -dt --name ssclient --privileged=true -p 8118:8118 -p 8117:8117 -p 8116:8116 yueyanglouji/ss-proxy -m "ss-local" -s "-s 127.0.0.1 -p 6500 -b 0.0.0.0 -l 1080 -m chacha20-ietf-poly1305 -k test123" -x true -e "kcpclient" -k "-r SS_SERVER_IP_WRITE_HERE:6500 -l :6500 --key test123 -mode fast2 --tcp" -p true -r true -u true -v "127.0.0.1:1080"
 ```
 
 **以上命令相当于执行了** 
 
 ``` sh
 ss-local -s 127.0.0.1 -p 6500 -b 0.0.0.0 -l 1080 -m chacha20-ietf-poly1305 -k test123
-kcpclient -r SS_SERVER_IP_WRITE_HERE:6500 -l :6500 --key test123 -mode fast2
+kcpclient -r SS_SERVER_IP_WRITE_HERE:6500 -l :6500 --key test123 -mode fast2 --tcp
 privoxy <PAC 8118>
 privoxy <全局 8117>
 privoxy <本地 8116>
@@ -167,6 +181,8 @@ docker run -dt --name ss -p 6443:6443 -p 6500:6500/udp -e SS_CONFIG="-s 0.0.0.0 
 这种情况是由于宿主机没有能提供足够的熵来生成随机数导致，修复办法可以考虑增加 `--device /dev/urandom:/dev/urandom` 选项来使用 `/dev/urandom` 来生成，不过并不算推荐此种方式
 
 ### 更新日志
+
+- 2022-02-21 kcpturn支持TCP模式
 
 - 2016-10-12 基于 shadowsocks 2.9.0 版本
 
