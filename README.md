@@ -194,7 +194,9 @@ docker run -dt --name ss -p 6443:6443 -p 6500:6500/udp -e SS_CONFIG="-s 0.0.0.0 
 
 ### 更新日志
 
-- 2022-02-21 kcpturn支持TCP模式
+- 2022-02-21 kcptun支持TCP模式
+
+  更新kcptun版本到20210922
 
 - 2016-10-12 基于 shadowsocks 2.9.0 版本
 

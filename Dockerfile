@@ -9,7 +9,7 @@ USER root
 
 ENV TZ ${TZ}
 ENV SS_LIBEV_VERSION v3.3.5
-ENV KCP_VERSION 20201126
+ENV KCP_VERSION 20210922
 ENV V2RAY_PLUGIN_VERSION v1.3.1
 ENV SS_DOWNLOAD_URL https://github.com/shadowsocks/shadowsocks-libev.git 
 ENV KCP_DOWNLOAD_URL https://github.com/xtaci/kcptun/releases/download/v${KCP_VERSION}/kcptun-linux-amd64-${KCP_VERSION}.tar.gz
@@ -37,7 +37,7 @@ RUN apk upgrade \
         git \
         texinfo \
         perl \
-    # && git config --global http.proxy 10.48.211.15:1087 \
+    # && git config --global http.proxy 10.48.211.3:8118 \
     && git clone ${SS_DOWNLOAD_URL} \
     && (cd shadowsocks-libev \
     && git checkout tags/${SS_LIBEV_VERSION} -b ${SS_LIBEV_VERSION} \
@@ -55,8 +55,8 @@ RUN apk upgrade \
     # && (cd polipo \
     # && make all \
     # && make install) \
-    # && export http_proxy=http://10.48.211.15:1087 \
-    # && export https_proxy=http://10.48.211.15:1087 \
+    # && export http_proxy=http://10.48.211.3:8118 \
+    # && export https_proxy=http://10.48.211.3:8118 \
 	&& sed -i 's/logfile privoxy.log/# logfile privoxy.log/g' /etc/privoxy/config \
 	&& cp -r /etc/privoxy /etc/privoxy-local-only \
 	&& cp -r /etc/privoxy /etc/privoxy-ss-only \
