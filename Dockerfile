@@ -37,7 +37,7 @@ RUN apk upgrade \
         git \
         texinfo \
         perl \
-    # && git config --global http.proxy 10.48.211.3:8118 \
+     && git config --global http.proxy 10.48.211.3:8118 \
     && git clone ${SS_DOWNLOAD_URL} \
     && (cd shadowsocks-libev \
     && git checkout tags/${SS_LIBEV_VERSION} -b ${SS_LIBEV_VERSION} \
@@ -55,8 +55,16 @@ RUN apk upgrade \
     # && (cd polipo \
     # && make all \
     # && make install) \
-    # && export http_proxy=http://10.48.211.3:8118 \
-    # && export https_proxy=http://10.48.211.3:8118 \
+     && export http_proxy=http://10.48.211.3:8118 \
+     && export https_proxy=http://10.48.211.3:8118 \
+	&& cp /etc/privoxy/config.new /etc/privoxy/config \
+	&& cp /etc/privoxy/default.filter.new /etc/privoxy/default.filter \
+	&& cp /etc/privoxy/regression-tests.action.new /etc/privoxy/regression-tests.action \
+	&& cp /etc/privoxy/user.action.new /etc/privoxy/user.action \
+	&& cp /etc/privoxy/default.action.new /etc/privoxy/default.action \
+	&& cp /etc/privoxy/match-all.action.new /etc/privoxy/match-all.action \
+	&& cp /etc/privoxy/trust.new /etc/privoxy/trust \
+	&& cp /etc/privoxy/user.filter.new /etc/privoxy/user.filter \
 	&& sed -i 's/logfile privoxy.log/# logfile privoxy.log/g' /etc/privoxy/config \
 	&& cp -r /etc/privoxy /etc/privoxy-local-only \
 	&& cp -r /etc/privoxy /etc/privoxy-ss-only \
