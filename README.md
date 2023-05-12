@@ -54,6 +54,8 @@ protocol="tcp" accept' --permanent
 - 规则生效 -------> firewall-cmd --reload
 - 查看规则 -------> firewall-cmd --list-all
 - 允许IP伪装启用包转发 -----> firewall-cmd --add-masquerade --permanent
+- 禁止服务器向外访问指定IP-----> ~~firewall-cmd --permanent --add-rich-rule="rule family='ipv4' destination address='40.73.72.37' reje ct"~~
+- 禁止服务器向外访问指定IP和端口（docker转发不可用）-----> firewall-cmd --permanent --direct --add-rule ipv4 filter OUTPUT 0 -d 40.73.72.37 -p tcp --dport 80 -j DROP
 
 
 TODO:
