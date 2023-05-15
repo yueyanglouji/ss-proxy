@@ -55,8 +55,16 @@ protocol="tcp" accept' --permanent
 - 查看规则 -------> firewall-cmd --list-all
 - 允许IP伪装启用包转发 -----> firewall-cmd --add-masquerade --permanent
 - 禁止服务器向外访问指定IP-----> ~~firewall-cmd --permanent --add-rich-rule="rule family='ipv4' destination address='40.73.72.37' reje ct"~~
-- 禁止服务器向外访问指定IP和端口（docker转发不可用）-----> firewall-cmd --permanent --direct --add-rule ipv4 filter OUTPUT 0 -d 40.73.72.37 -p tcp --dport 80 -j DROP
-
+- 禁止服务器向外访问指定IP和端口（docker转发不可用）-----> ~~firewall-cmd --permanent --direct --add-rule ipv4 filter OUTPUT 0 -d 40.73.72.37 -p tcp --dport 80 -j DROP~~
+- 禁止服务器向外访问指定IP和端口（privoxy解决案）-----> /etc/privoxy/config中加入以下配置（文件最后）
+  ```
+  # 内部ip不走代理
+  forward 10.*.*.* .
+  forward 127.*.*.* .
+  forward 192.168.*.* .
+  # 当使用IP访问时，转发到不存在的代理（无效转发，达到禁止访问的目的），如果只想禁用单个IP时，只需将*.*.*.*替换为目标IP
+  forward *.*.*.* 127.0.0.1:110
+  ```
 
 TODO:
 
